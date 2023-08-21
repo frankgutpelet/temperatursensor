@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<link rel="stylesheet" style="text/css">
+<meta content="de" http-equiv="Content-Language" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Embedded Template</title>
+<style type="text/css">
+	.button {
+	  display: inline-block;
+	  padding: 15px 20px;
+	  font-size: 20px;
+	  cursor: pointer;
+	  text-align: center;
+	  text-decoration: none;
+	  outline: none;
+	  color: #fff;
+	  background-color: silver;
+	  border: none;
+	  border-radius: 10px;
+	  box-shadow: 0 9px black;
+	}
+</style>
+
+<body>
+	<h1 id="headline" >Embedded Template</h1>
+	<table style="width: 100%">
+		<tr>
+			<td><strong>Schwellwert unterschreiten: </strong></td>
+			<td><strong id="setTempMin"></strong></td>
+		</tr>
+		<tr>
+			<td><strong>Schwellwert überschreiten: </strong></td>
+			<td><strong id="setTempMax"></strong></td>
+		</tr>
+		<tr>
+			<td><strong>Temperatur: </strong></td>
+			<td><strong id="temp"></strong></td>
+		</tr>
+		<tr>
+			<td><strong>Status: </strong></td>
+			<td><strong id="status"></strong></td>
+		</tr>
+		<tr>
+			<td><strong>Solarfreigabe: </strong></td>
+			<td><strong id="allow"></strong></td>
+		</tr>
+		<tr>
+			<td><strong>Schwellwert unterschreiten: </strong></td>
+			<td><input type="text" id="outSetTempMin"onchange="updateDynamicVariable1()"></strong></td>
+		</tr>
+		<tr>
+			<td><strong>Schwellwert überschreiten: </strong></td>
+			<td><input type="text" id="outSetTempMax"onchange="updateDynamicVariable2()"></strong></td>
+		</tr>
+		<tr>
+			<td><strong>Treshold (°C): </strong></td>
+			<td><input type="text" id="outTreshold"onchange="updateDynamicVariable3()"></strong></td>
+		</tr>
+		<tr>
+			<td><strong>calibrate (°C): </strong></td>
+			<td><input type="text" id="outCalibrate"onchange="updateDynamicVariable4()"></strong></td>
+		</tr>
+		<tr>
+			<td>
+				<form action="submit" method="post" >
+					<button class="button" id="submitBtn" type="submit" name="action" value="" >übernehmen</button>
+				</form>
+			</td>
+		</tr>
+
+	</table>
+</body>
+</html>
+
+<script>
+	var values =
+	{
+		"setTempMin" : "dynamic",
+		"setTempMax" : "dynamic",
+		"outSetTempMin" : "dynamic",
+		"outSetTempMax" : "dynamic",
+		"outTreshold" : "dynamic",
+		"outCalibrate" : "dynamic",
+		"temp" : "dynamic",
+		"status" : "dynamic",
+		"allow" : "dynamic",
+		"headline" : "dynamic",
+	}
+	document.title = values.headline
+	document.getElementById("setTempMin").innerHTML = values.setTempMin
+	document.getElementById("setTempMax").innerHTML = values.setTempMax
+	document.getElementById("temp").innerHTML = values.temp
+	interval = setInterval(updateValues, 1000)
+
+	function updateDynamicVariable1()
+	{
+		values.outSetTempMin = document.getElementById("outSetTempMin").value
+		document.getElementById("submitBtn").value = JSON.stringify(values)
+	}
+	function updateDynamicVariable2()
+	{
+		values.outSetTempMax = document.getElementById("outSetTempMax").value
+		document.getElementById("submitBtn").value = JSON.stringify(values)
+	}
+	function updateDynamicVariable3()
+	{
+		values.outTreshold = document.getElementById("outTreshold").value
+		document.getElementById("submitBtn").value = JSON.stringify(values)
+	}
+	function updateDynamicVariable4()
+	{
+		values.outCalibrate = document.getElementById("outCalibrate").value
+		document.getElementById("submitBtn").value = JSON.stringify(values)
+	}
+
+	function updateValues()
+	{
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function(){
+			pairs = this.responseText.split(";");
+			for(let i = 0; i < pairs.length; i++)
+			{
+				pair = pairs[i].split(':');
+				values[pair[0]] = pair[1];
+				document.getElementById(pair[0]).innerHTML = pair[1]
+			}
+		}
+		xhttp.open("GET", "getValues", true);
+		xhttp.send();
+	}
+
+</script>
