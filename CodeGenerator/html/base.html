@@ -7,6 +7,12 @@
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
 <title>Embedded Template</title>
 <style type="text/css">
+
+	html {
+	  background: linear-gradient(to bottom right, navy, black);
+		background-repeat: no-repeat;
+		min-height: 100%;
+	}
 	.button {
 	  display: inline-block;
 	  padding: 15px 20px;
@@ -21,18 +27,53 @@
 	  border-radius: 10px;
 	  box-shadow: 0 9px black;
 	}
+	.auto-style-headline {
+    text-transform: uppercase;
+    font-family: verdana;
+    font-size: 3em;
+    font-weight: 700;
+    color: #f5f5f5;
+    text-shadow: 1px 1px 1px #919191,
+        1px 1px 1px #919191,
+        1px 2px 1px #919191,
+        1px 3px 1px #919191,
+        1px 4px 1px #919191,
+        1px 5px 1px #919191,
+
+    1px 18px 6px rgba(16,16,16,0.4),
+    1px 22px 10px rgba(16,16,16,0.2),
+    1px 25px 35px rgba(16,16,16,0.2);
+}
+.auto-style3 {
+	color: #EEEEEE;
+}
+.auto-style4 {
+	color: #008000;
+}
+.auto-style5 {
+	color: #A70D2A;
+}
 </style>
 
 <body>
-	<h1 id="headline" >Embedded Template</h1>
-	<table style="width: 100%">
+	<p class="auto-style-headline" id="headline" >Embedded Template</p>
+	<p class="auto-style4" id="version">unknown</p>
+	<table class="auto-style3">
 		<tr>
-			<td><strong>Schwellwert unterschreiten: </strong></td>
+			<td><strong class="auto-style4">Schwellwert unterschreiten (mit Freigabe): </strong></td>
 			<td><strong id="setTempMin"></strong></td>
 		</tr>
 		<tr>
-			<td><strong>Schwellwert überschreiten: </strong></td>
+			<td><strong class="auto-style4">Schwellwert überschreiten (mit Freigabe): </strong></td>
 			<td><strong id="setTempMax"></strong></td>
+		</tr>
+		<tr>
+			<td><strong class="auto-style5">Schwellwert unterschreiten (ohne Freigabe): </strong></td>
+			<td><strong id="setTempMinForce"></strong></td>
+		</tr>
+		<tr>
+			<td><strong class="auto-style5">Schwellwert überschreiten (ohne Freigabe): </strong></td>
+			<td><strong id="setTempMaxForce"></strong></td>
 		</tr>
 		<tr>
 			<td><strong>Temperatur: </strong></td>
@@ -47,12 +88,20 @@
 			<td><strong id="allow"></strong></td>
 		</tr>
 		<tr>
-			<td><strong>Schwellwert unterschreiten: </strong></td>
+			<td><strong class="auto-style4">Schwellwert unterschreiten (mit Freigabe): </strong></td>
 			<td><input type="text" id="outSetTempMin"onchange="updateDynamicVariable1()"></strong></td>
 		</tr>
 		<tr>
-			<td><strong>Schwellwert überschreiten: </strong></td>
+			<td><strong class="auto-style4">Schwellwert überschreiten (mit Freigabe): </strong></td>
 			<td><input type="text" id="outSetTempMax"onchange="updateDynamicVariable2()"></strong></td>
+		</tr>
+		<tr>
+			<td><strong class="auto-style5">Schwellwert unterschreiten (ohne Freigabe): </strong></td>
+			<td><input type="text" id="outSetTempMinForce"onchange="updateDynamicVariable5()"></strong></td>
+		</tr>
+		<tr>
+			<td><strong class="auto-style5">Schwellwert überschreiten (ohne Freigabe): </strong></td>
+			<td><input type="text" id="outSetTempMaxForce"onchange="updateDynamicVariable6()"></strong></td>
 		</tr>
 		<tr>
 			<td><strong>Treshold (°C): </strong></td>
@@ -81,16 +130,23 @@
 		"setTempMax" : "dynamic",
 		"outSetTempMin" : "dynamic",
 		"outSetTempMax" : "dynamic",
+		"setTempMinForce" : "dynamic",
+		"setTempMaxForce" : "dynamic",
+		"outSetTempMinForce" : "dynamic",
+		"outSetTempMaxForce" : "dynamic",
 		"outTreshold" : "dynamic",
 		"outCalibrate" : "dynamic",
 		"temp" : "dynamic",
 		"status" : "dynamic",
 		"allow" : "dynamic",
 		"headline" : "dynamic",
+		"version" : "dynamic"
 	}
 	document.title = values.headline
 	document.getElementById("setTempMin").innerHTML = values.setTempMin
 	document.getElementById("setTempMax").innerHTML = values.setTempMax
+	document.getElementById("setTempMinForce").innerHTML = values.setTempMinForce
+	document.getElementById("setTempMaxForce").innerHTML = values.setTempMaxForce
 	document.getElementById("temp").innerHTML = values.temp
 	interval = setInterval(updateValues, 1000)
 
@@ -112,6 +168,16 @@
 	function updateDynamicVariable4()
 	{
 		values.outCalibrate = document.getElementById("outCalibrate").value
+		document.getElementById("submitBtn").value = JSON.stringify(values)
+	}
+	function updateDynamicVariable5()
+	{
+		values.outSetTempMinForce = document.getElementById("outSetTempMinForce").value
+		document.getElementById("submitBtn").value = JSON.stringify(values)
+	}
+	function updateDynamicVariable6()
+	{
+		values.outSetTempMaxForce = document.getElementById("outSetTempMaxForce").value
 		document.getElementById("submitBtn").value = JSON.stringify(values)
 	}
 

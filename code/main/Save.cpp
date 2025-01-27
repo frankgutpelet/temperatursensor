@@ -16,6 +16,8 @@ void SaveEEprom::Read()
   EEPROM.end();
   this->tempMin = storage.tempMin;
   this->tempMax = storage.tempMax;
+  this->tempMinForce = storage.tempMinForce;
+  this->tempMaxForce = storage.tempMaxForce;
   this->treshold = storage.treshold;
   this->calibrate = storage.calibrate;
   Serial.println(String("EEPROM Read 0:") + this->tempMin + " 8:" + this->tempMax);
@@ -27,6 +29,8 @@ void SaveEEprom::Save()
   Serial.println(String("EEPROM Save 0:") + this->tempMin + " 8:" + this->tempMax);
   storage.tempMin = this->tempMin;
   storage.tempMax = this->tempMax;
+  storage.tempMinForce = this->tempMinForce;
+  storage.tempMaxForce = this->tempMaxForce;
   storage.treshold = this->treshold;
   storage.calibrate = this->calibrate;
 	EEPROM.begin(sizeof(storage)); 
@@ -48,6 +52,22 @@ void SaveEEprom::Set_tempMax(double tempMax)
 	if (this->tempMax != tempMax)
   {
     this->tempMax = tempMax;
+    this->Save();
+  }
+}
+void SaveEEprom::Set_tempMinForce(double tempMinForce)
+{
+  if (this->tempMinForce != tempMinForce)
+  {
+    this->tempMinForce = tempMinForce;
+    this->Save();
+  }
+}
+void SaveEEprom::Set_tempMaxForce(double tempMaxForce)
+{
+  if (this->tempMaxForce != tempMaxForce)
+  {
+    this->tempMaxForce = tempMaxForce;
     this->Save();
   }
 }
@@ -74,6 +94,14 @@ double SaveEEprom::Get_tempMin()
 double SaveEEprom::Get_tempMax()
 {
 	return this->tempMax;
+}
+double SaveEEprom::Get_tempMinForce()
+{
+  return this->tempMinForce;
+}
+double SaveEEprom::Get_tempMaxForce()
+{
+  return this->tempMaxForce;
 }
 double SaveEEprom::Get_treshold()
 {
