@@ -25,7 +25,7 @@ def printClass(side):
     header.write("\t\t" + side.name + " (ESP8266WebServer* server);\n\n")
     header.write("\t\tvoid Render (void);\n")
     header.write("\t\tvoid GetAjaxValues (void);\n")
-
+    header.write("\t\tvoid SetCallback_submit(void (*callback)(void)) {this->Submit_UserCallback = callback;}\n")
     source.write("#include \"" + side.name + ".hpp\"\n")
     source.write("#include <ArduinoJson.h>\n")
     source.write("\n")
@@ -57,8 +57,8 @@ def printClass(side):
         source.write("\t\tthis->" + var + " = obj[\"" + var + "\"].as < String > ();\n")
     source.write("\n")
     source.write("\t}\n")
-    source.write("\tif (NULL != this->submit_UserCallback)\n\t{\n")
-    source.write("\t\tthis->submit_UserCallback();\n\t}\n")
+    source.write("\tif (NULL != this->Submit_UserCallback)\n\t{\n")
+    source.write("\t\tthis->Submit_UserCallback();\n\t}\n")
     source.write("}\n\n")
 
     for cbFunc in side.callbacks:
@@ -66,6 +66,7 @@ def printClass(side):
         header.write("\t\tvoid SetCallback_" + cbFunc.replace("/", "_") + " (void (*callback)(void));\n")
 
     for variable in side.vars:
+        print("Found variable: " + variable)
         header.write("\t\tvoid Set_" + variable + " (String value);\n")
         header.write("\t\tString Get_" + variable + " ();\n")
         source.write("void " + side.name + "::Set_" + variable + " (String value)\n{\n\tthis->" + variable + " = value;\n}\n\n")
@@ -83,6 +84,7 @@ def printClass(side):
     source.write("\tthis->server->send(200, \"text/plain\", message);\n}\n")
     header.write("\tprivate:\n")
     header.write("\t\tvoid Submit_Callback(void);\n")
+    header.write("\t\tvoid (*Submit_UserCallback)(void) = NULL;\n")
     for cbFunc in side.callbacks:
         header.write("\t\tvoid(*" + cbFunc + "_UserCallback)(void);\n")
     header.write("\t\tESP8266WebServer* server;\n")

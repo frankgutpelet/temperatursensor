@@ -61,23 +61,23 @@
 	<table class="auto-style3">
 		<tr>
 			<td><strong class="auto-style4">Schwellwert unterschreiten (mit Freigabe): </strong></td>
-			<td><strong id="setTempMin"></strong></td>
+			<td><strong id="setTempMin"></strong><strong>°C</strong></td>
 		</tr>
 		<tr>
 			<td><strong class="auto-style4">Schwellwert überschreiten (mit Freigabe): </strong></td>
-			<td><strong id="setTempMax"></strong></td>
+			<td><strong id="setTempMax"></strong><strong>°C</strong></td>
 		</tr>
 		<tr>
 			<td><strong class="auto-style5">Schwellwert unterschreiten (ohne Freigabe): </strong></td>
-			<td><strong id="setTempMinForce"></strong></td>
+			<td><strong id="setTempMinForce"></strong><strong>°C</strong></td>
 		</tr>
 		<tr>
 			<td><strong class="auto-style5">Schwellwert überschreiten (ohne Freigabe): </strong></td>
-			<td><strong id="setTempMaxForce"></strong></td>
+			<td><strong id="setTempMaxForce"></strong><strong>°C</strong></td>
 		</tr>
 		<tr>
 			<td><strong>Temperatur: </strong></td>
-			<td><strong id="temp"></strong></td>
+			<td><strong id="temp"></strong><strong>°C</strong></td>
 		</tr>
 		<tr>
 			<td><strong>Status: </strong></td>
@@ -88,33 +88,47 @@
 			<td><strong id="allow"></strong></td>
 		</tr>
 		<tr>
+			<td><strong>Treshold: </strong></td>
+			<td><strong id="treshold"></strong><strong>K</strong></td>
+		</tr>
+		<tr>
+			<td><strong>Calibrate: </strong></td>
+			<td><strong id="calibrate"></strong><strong>K</strong></td>
+		</tr>
+		<tr>
 			<td><strong class="auto-style4">Schwellwert unterschreiten (mit Freigabe): </strong></td>
-			<td><input type="text" id="outSetTempMin"onchange="updateDynamicVariable1()"></strong></td>
+			<td><input type="text" id="outSetTempMin" onchange="updateDynamicVariable1()" /></strong></td>
 		</tr>
 		<tr>
 			<td><strong class="auto-style4">Schwellwert überschreiten (mit Freigabe): </strong></td>
-			<td><input type="text" id="outSetTempMax"onchange="updateDynamicVariable2()"></strong></td>
+			<td><input type="text" id="outSetTempMax" onchange="updateDynamicVariable2()" /></strong></td>
 		</tr>
 		<tr>
 			<td><strong class="auto-style5">Schwellwert unterschreiten (ohne Freigabe): </strong></td>
-			<td><input type="text" id="outSetTempMinForce"onchange="updateDynamicVariable5()"></strong></td>
+			<td><input type="text" id="outSetTempMinForce" onchange="updateDynamicVariable5()" /></strong></td>
 		</tr>
 		<tr>
 			<td><strong class="auto-style5">Schwellwert überschreiten (ohne Freigabe): </strong></td>
-			<td><input type="text" id="outSetTempMaxForce"onchange="updateDynamicVariable6()"></strong></td>
+			<td><input type="text" id="outSetTempMaxForce" onchange="updateDynamicVariable6()" /></strong></td>
 		</tr>
 		<tr>
 			<td><strong>Treshold (°C): </strong></td>
-			<td><input type="text" id="outTreshold"onchange="updateDynamicVariable3()"></strong></td>
+			<td><input type="text" id="outTreshold" onchange="updateDynamicVariable3()" /></strong></td>
 		</tr>
 		<tr>
 			<td><strong>calibrate (°C): </strong></td>
-			<td><input type="text" id="outCalibrate"onchange="updateDynamicVariable4()"></strong></td>
+			<td><input type="text" id="outCalibrate" onchange="updateDynamicVariable4()" /></strong></td>
 		</tr>
+		<tr></tr>
 		<tr>
 			<td>
-				<form action="submit" method="post" >
-					<button class="button" id="submitBtn" type="submit" name="action" value="" >übernehmen</button>
+				<form action="submit" method="post">
+					<button class="button" id="submitBtn" type="submit" name="action" value="">übernehmen</button>
+				</form>
+			</td>
+			<td>
+				<form action="submit" method="post">
+					<button class="button" id="mode" type="submit" name="action" value="">dynamic</button>
 				</form>
 			</td>
 		</tr>
@@ -140,7 +154,10 @@
 		"status" : "dynamic",
 		"allow" : "dynamic",
 		"headline" : "dynamic",
-		"version" : "dynamic"
+		"version" : "dynamic",
+		"treshold" : "dynamic",
+		"calibrate" : "dynamic",
+		"mode" : "dynamic"
 	}
 	document.title = values.headline
 	document.getElementById("setTempMin").innerHTML = values.setTempMin
@@ -189,8 +206,19 @@
 			for(let i = 0; i < pairs.length; i++)
 			{
 				pair = pairs[i].split(':');
+				if (2 > pair.length) {
+					continue;
+				}
 				values[pair[0]] = pair[1];
-				document.getElementById(pair[0]).innerHTML = pair[1]
+				try {
+					document.getElementById(pair[0]).innerHTML = pair[1]
+				}
+				catch (e) {
+					console.error(`Unable to set Value for ${pair[0]}: ${pair[1]}\n$`);
+				}
+				if ("mode" == pair[0]) {
+					document.getElementById(pair[0]).value = JSON.stringify({ 'mode': pair[1] });
+				}
 			}
 		}
 		xhttp.open("GET", "getValues", true);
