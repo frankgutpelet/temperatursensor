@@ -47,7 +47,8 @@ DallasTemperature sensors(&oneWire);
 
 void handleSubmit() 
 {
-
+  String newMode = indexPage.Get_mode();
+  
   if (String("") != indexPage.Get_outSetTempMax())
   {
     double tempMax = indexPage.Get_outSetTempMax().toDouble();
@@ -55,51 +56,50 @@ void handleSubmit()
     indexPage.Set_outSetTempMax("");
     tempRegulator.setTempMax(tempMax);
   }
-  if (String("") != indexPage.Get_outSetTempMin())
+  else if (String("") != indexPage.Get_outSetTempMin())
   {
     double tempMin = indexPage.Get_outSetTempMin().toDouble();
     storage.Set_tempMin(tempMin);
     indexPage.Set_outSetTempMin("");
     tempRegulator.setTempMin(tempMin);
   }
-   if (String("") != indexPage.Get_outSetTempMaxForce())
+  else if (String("") != indexPage.Get_outSetTempMaxForce())
   {
     double tempMaxForce = indexPage.Get_outSetTempMaxForce().toDouble();
     storage.Set_tempMaxForce(tempMaxForce);
     indexPage.Set_outSetTempMax("");
     tempRegulator.setTempMaxForce(tempMaxForce);
   }
-  if (String("") != indexPage.Get_outSetTempMinForce())
+  else if (String("") != indexPage.Get_outSetTempMinForce())
   {
     double tempMinForce = indexPage.Get_outSetTempMinForce().toDouble();
     storage.Set_tempMinForce(tempMinForce);
     indexPage.Set_outSetTempMin("");
     tempRegulator.setTempMinForce(tempMinForce);
   }
-  if (String("") != indexPage.Get_outTreshold())
+  else if (String("") != indexPage.Get_outTreshold())
   {
     double treshold = indexPage.Get_outTreshold().toDouble();
     Serial.println(indexPage.Get_outTreshold() + " double: " + treshold);
     storage.Set_treshold(treshold);
     tempRegulator.setTreshold(treshold);
   }
-  if (String("") != indexPage.Get_outCalibrate())
+  else if (String("") != indexPage.Get_outCalibrate())
   {
     storage.Set_calibrate(indexPage.Get_outCalibrate().toDouble());
     indexPage.Set_outCalibrate("");
   }
-  String newMode = indexPage.Get_mode();
-  if (String("OFF") == newMode)
+  else if (String("OFF") == newMode)
   {
     indexPage.Set_mode("AUTO");
     switchMode = AUTO;
   }
-   if (String("AUTO") == newMode)
+  else if (String("AUTO") == newMode)
   {
     indexPage.Set_mode("ON");
     switchMode = ON;
   }
-   if (String("ON") == newMode)
+  else if (String("ON") == newMode)
   {
     indexPage.Set_mode("OFF");
     switchMode = OFF;
