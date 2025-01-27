@@ -22,7 +22,7 @@ double tempMax;
 double tempMin;
 double tempMaxForce;
 double tempMinForce;
-double lastTemp = 0;
+double lastTemp = 0.0;
 int relaisPin = 16; //D0 @ nodeMCU
 regulator tempRegulator(0,0,0,0,0);
 String fwVersion = "Version 1.1";
@@ -200,8 +200,7 @@ void timerOneFunc()
   
   sensors.requestTemperatures();
   temp = sensors.getTempCByIndex(0) + storage.Get_calibrate();
-
-  if (-50 < temp)
+  if (-50.0 < temp)
   {
     lastTemp = temp;
   }
@@ -211,8 +210,8 @@ void timerOneFunc()
   //Serial.println(String(indexPage.Get_outSetTempMax()) + "°C");
   //Serial.println(String(indexPage.Get_outSetTempMin()) + "°C");
    
-  tempString = String(lastTemp);
-  tempString = tempString.substring(tempString.length() - 2);
+  tempString = String(temp);
+  //tempString = tempString.substring(tempString.length() - 2);
   indexPage.Set_temp(tempString);  
   tempMax= storage.Get_tempMax();
   tempMin= storage.Get_tempMin();
