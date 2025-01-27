@@ -5,7 +5,7 @@
 #include <TimerEvent.h>
 #include "base.hpp"
 #include "Logger.hpp"
-#include "OneWire.h"; 
+#include "OneWire.h"
 #include <DallasTemperature.h>
 #include "Save.hpp"
 #include "regulator.hpp"
