@@ -217,7 +217,8 @@
 					console.error(`Unable to set Value for ${pair[0]}: ${pair[1]}\n$`);
 				}
 				if ("mode" == pair[0]) {
-					document.getElementById(pair[0]).value = JSON.stringify({ 'mode': pair[1] });
+					values.mode = pair[1];
+					document.getElementById(pair[0]).value = JSON.stringify(values);
 				}
 			}
 		}
