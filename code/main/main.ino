@@ -12,7 +12,7 @@
 
 const char* ssid = "WMOSKITO";
 const char* password = ".ubX54bVSt#vxW11m.";
-const char* myhostname = "WasserbettDepp";
+const char* myhostname = "WasserbettSabrina";
 
 const char* title = "Temperatursteuerung";
 const unsigned int timerOnePeriod = 1000;
@@ -25,7 +25,7 @@ double tempMinForce;
 double lastTemp = 0.0;
 int relaisPin = 16; //D0 @ nodeMCU
 regulator tempRegulator(0,0,0,0,0);
-String fwVersion = "Version 1.1";
+String fwVersion = "Version 1.2";
 ESP8266WebServer server(80);
 base indexPage(&server);
 Logger* logger = Logger::instance();
@@ -40,7 +40,7 @@ enum e_mode {
   AUTO
 };
 
-e_mode switchMode = OFF;
+e_mode switchMode = AUTO;
 
 OneWire oneWire(4); //D2 @ nodeMCU
 DallasTemperature sensors(&oneWire);
@@ -167,7 +167,7 @@ void setup(void) {
   server.on("/cm", Release);
   server.on("/temp", sendTemp);
   indexPage.SetCallback_submit(handleSubmit); 
-  indexPage.Set_mode("OFF");
+  indexPage.Set_mode("AUTO");
   
   server.onNotFound(handleNotFound);
 
@@ -210,7 +210,7 @@ void timerOneFunc()
   //Serial.println(String(indexPage.Get_outSetTempMax()) + "°C");
   //Serial.println(String(indexPage.Get_outSetTempMin()) + "°C");
    
-  tempString = String(temp);
+  tempString = String(lastTemp);
   //tempString = tempString.substring(tempString.length() - 2);
   indexPage.Set_temp(tempString);  
   tempMax= storage.Get_tempMax();
