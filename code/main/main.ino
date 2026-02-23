@@ -1,6 +1,5 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <TimerEvent.h>
 #include "base.hpp"
@@ -10,9 +9,11 @@
 #include "Save.hpp"
 #include "regulator.hpp"
 
+#define REL_STATUS_FAILSAVE true
+
 const char* ssid = "WMOSKITO";
 const char* password = ".ubX54bVSt#vxW11m.";
-const char* myhostname = "WasserbettDepp";
+const char* myhostname = "WasserbettSabrina";
 
 const char* title = "Temperatursteuerung";
 const unsigned int timerOnePeriod = 1000;
@@ -23,9 +24,10 @@ double tempMin;
 double tempMaxForce;
 double tempMinForce;
 double lastTemp = 0.0;
+int dallasErrorCnt = 0;
 int relaisPin = 16; //D0 @ nodeMCU
 regulator tempRegulator(0,0,0,0,0);
-String fwVersion = "Version 1.1";
+String fwVersion = "Version 2.0";
 ESP8266WebServer server(80);
 base indexPage(&server);
 Logger* logger = Logger::instance();
@@ -51,55 +53,55 @@ void handleSubmit()
   
   if (String("") != indexPage.Get_outSetTempMax())
   {
-    double tempMax = indexPage.Get_outSetTempMax().toDouble();
-    storage.Set_tempMax(tempMax);
+    double newTempMax = indexPage.Get_outSetTempMax().toDouble();
+    storage.Set_tempMax(newTempMax);
     indexPage.Set_outSetTempMax("");
-    tempRegulator.setTempMax(tempMax);
+    tempRegulator.setTempMax(newTempMax);
   }
-  else if (String("") != indexPage.Get_outSetTempMin())
+  if (String("") != indexPage.Get_outSetTempMin())
   {
-    double tempMin = indexPage.Get_outSetTempMin().toDouble();
-    storage.Set_tempMin(tempMin);
+    double newTempMin = indexPage.Get_outSetTempMin().toDouble();
+    storage.Set_tempMin(newTempMin);
     indexPage.Set_outSetTempMin("");
-    tempRegulator.setTempMin(tempMin);
+    tempRegulator.setTempMin(newTempMin);
   }
-  else if (String("") != indexPage.Get_outSetTempMaxForce())
+  if (String("") != indexPage.Get_outSetTempMaxForce())
   {
-    double tempMaxForce = indexPage.Get_outSetTempMaxForce().toDouble();
-    storage.Set_tempMaxForce(tempMaxForce);
-    indexPage.Set_outSetTempMax("");
-    tempRegulator.setTempMaxForce(tempMaxForce);
+    double newTempMaxForce = indexPage.Get_outSetTempMaxForce().toDouble();
+    storage.Set_tempMaxForce(newTempMaxForce);
+    indexPage.Set_outSetTempMaxForce("");
+    tempRegulator.setTempMaxForce(newTempMaxForce);
   }
-  else if (String("") != indexPage.Get_outSetTempMinForce())
+  if (String("") != indexPage.Get_outSetTempMinForce())
   {
-    double tempMinForce = indexPage.Get_outSetTempMinForce().toDouble();
-    storage.Set_tempMinForce(tempMinForce);
-    indexPage.Set_outSetTempMin("");
-    tempRegulator.setTempMinForce(tempMinForce);
+    double newTempMinForce = indexPage.Get_outSetTempMinForce().toDouble();
+    storage.Set_tempMinForce(newTempMinForce);
+    indexPage.Set_outSetTempMinForce("");
+    tempRegulator.setTempMinForce(newTempMinForce);
   }
-  else if (String("") != indexPage.Get_outTreshold())
+  if (String("") != indexPage.Get_outTreshold())
   {
     double treshold = indexPage.Get_outTreshold().toDouble();
     Serial.println(indexPage.Get_outTreshold() + " double: " + treshold);
     storage.Set_treshold(treshold);
     tempRegulator.setTreshold(treshold);
   }
-  else if (String("") != indexPage.Get_outCalibrate())
+  if (String("") != indexPage.Get_outCalibrate())
   {
     storage.Set_calibrate(indexPage.Get_outCalibrate().toDouble());
     indexPage.Set_outCalibrate("");
   }
-  else if (String("OFF") == newMode)
+  if (String("OFF") == newMode)
   {
     indexPage.Set_mode("AUTO");
     switchMode = AUTO;
   }
-  else if (String("AUTO") == newMode)
+  if (String("AUTO") == newMode)
   {
     indexPage.Set_mode("ON");
     switchMode = ON;
   }
-  else if (String("ON") == newMode)
+  if (String("ON") == newMode)
   {
     indexPage.Set_mode("OFF");
     switchMode = OFF;
@@ -190,6 +192,29 @@ void loop(void) {
   timerOne.update();
 }
 
+void setRelais(bool relStatus)
+{
+  if (relStatus)
+  {
+    if (relOffBreakSeconds > relOffBreakCounter)
+    {
+      indexPage.Set_status(String("WAIT ") + (relOffBreakSeconds - relOffBreakCounter) + " sec");
+      relOffBreakCounter++;
+    }
+    else
+    {
+      indexPage.Set_status("ON");
+      digitalWrite(relaisPin, HIGH);
+    }
+  }
+  else
+  {
+    relOffBreakCounter = 0;
+    indexPage.Set_status("OFF");
+    digitalWrite(relaisPin, LOW);
+  }
+}
+
 void timerOneFunc()
 {
   double temp = 0.0;
@@ -200,11 +225,20 @@ void timerOneFunc()
   
   sensors.requestTemperatures();
   temp = sensors.getTempCByIndex(0) + storage.Get_calibrate();
-  if (-50.0 < temp)
+  if (temp != DEVICE_DISCONNECTED_C)
   {
     lastTemp = temp;
+    dallasErrorCnt = 0;
   }
-
+  else
+  {
+    dallasErrorCnt++;
+  }
+  if (10 <= dallasErrorCnt)
+  {
+    lastTemp = temp;
+    relStatus = REL_STATUS_FAILSAVE;
+  }
 
   treshold = storage.Get_treshold();
   //Serial.println(String(indexPage.Get_outSetTempMax()) + "°C");
@@ -232,30 +266,17 @@ void timerOneFunc()
   {
     relStatus = true;
   }
-  else
+  else if (temp != DEVICE_DISCONNECTED_C)
   {
     relStatus = tempRegulator.isOn(lastTemp, allow);
+  }
+  else
+  {
+    //FAIL SAFE nach 10 falschen Werten
   }
   
   Serial.println(String("tempMax:") + tempRegulator.getTempMax() + "°C; tempMin:" + tempRegulator.getTempMin() + "°C; tempMinForce:" + tempRegulator.getTempMinForce() + "; tempMaxForce:" + tempRegulator.getTempMaxForce() + "°C" + "; treshold:" + tempRegulator.getTreshold());
   
-  if (relStatus)
-  {
-    if (relOffBreakSeconds > relOffBreakCounter)
-    {
-      indexPage.Set_status(String("WAIT ") + (relOffBreakSeconds - relOffBreakCounter) + " sec");
-      relOffBreakCounter++;
-    }
-    else
-    {
-      indexPage.Set_status("ON");
-      digitalWrite(relaisPin, HIGH);
-    }
-  }
-  else
-  {
-    relOffBreakCounter = 0;
-    indexPage.Set_status("OFF");
-    digitalWrite(relaisPin, LOW);
-  }
+  setRelais(relStatus);
+ 
 }

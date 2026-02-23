@@ -1,141 +1,188 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-
+<!DOCTYPE html>
+<html lang="de">
 <head>
-	<link rel="stylesheet" style="text/css">
-<meta content="de" http-equiv="Content-Language" />
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Embedded Template</title>
-<style type="text/css">
 
-	html {
-	  background: linear-gradient(to bottom right, navy, black);
-		background-repeat: no-repeat;
-		min-height: 100%;
-	}
-	.button {
-	  display: inline-block;
-	  padding: 15px 20px;
-	  font-size: 20px;
-	  cursor: pointer;
-	  text-align: center;
-	  text-decoration: none;
-	  outline: none;
-	  color: #fff;
-	  background-color: silver;
-	  border: none;
-	  border-radius: 10px;
-	  box-shadow: 0 9px black;
-	}
-	.auto-style-headline {
-    text-transform: uppercase;
-    font-family: verdana;
-    font-size: 3em;
-    font-weight: 700;
-    color: #f5f5f5;
-    text-shadow: 1px 1px 1px #919191,
-        1px 1px 1px #919191,
-        1px 2px 1px #919191,
-        1px 3px 1px #919191,
-        1px 4px 1px #919191,
-        1px 5px 1px #919191,
+<style>
+:root {
+	--bg1: #0f172a;
+	--bg2: #1e293b;
+	--card: #111827;
+	--accent: #3b82f6;
+	--ok: #16a34a;
+	--warn: #dc2626;
+	--text: #e5e7eb;
+	--muted: #9ca3af;
+	--radius: 14px;
+}
 
-    1px 18px 6px rgba(16,16,16,0.4),
-    1px 22px 10px rgba(16,16,16,0.2),
-    1px 25px 35px rgba(16,16,16,0.2);
+* {
+	box-sizing: border-box;
+	font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
-.auto-style3 {
-	color: #EEEEEE;
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	background: linear-gradient(135deg, var(--bg1), var(--bg2));
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--text);
 }
-.auto-style4 {
-	color: #008000;
+
+.wrapper {
+	width: 100%;
+	max-width: 900px;
+	padding: 30px;
 }
-.auto-style5 {
-	color: #A70D2A;
+
+.card {
+	background: var(--card);
+	border-radius: var(--radius);
+	padding: 30px;
+	box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+h1 {
+	margin: 0 0 5px 0;
+	font-size: 2rem;
+	font-weight: 600;
+}
+
+.version {
+	color: var(--muted);
+	margin-bottom: 30px;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 12px 20px;
+	align-items: center;
+}
+
+.label {
+	font-weight: 500;
+}
+
+.label.ok { color: var(--ok); }
+.label.warn { color: var(--warn); }
+
+.value {
+	font-weight: 600;
+}
+
+input[type="text"] {
+	width: 120px;
+	padding: 8px 10px;
+	border-radius: 8px;
+	border: 1px solid #374151;
+	background: #1f2937;
+	color: var(--text);
+}
+
+input[type="text"]:focus {
+	outline: none;
+	border-color: var(--accent);
+}
+
+.actions {
+	margin-top: 30px;
+	display: flex;
+	gap: 15px;
+}
+
+button {
+	padding: 12px 20px;
+	border-radius: 10px;
+	border: none;
+	background: var(--accent);
+	color: white;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s, transform 0.1s;
+}
+
+button:hover {
+	background: #2563eb;
+}
+
+button:active {
+	transform: scale(0.97);
 }
 </style>
+</head>
 
 <body>
-	<p class="auto-style-headline" id="headline" >Embedded Template</p>
-	<p class="auto-style4" id="version">unknown</p>
-	<table class="auto-style3">
-		<tr>
-			<td><strong class="auto-style4">Schwellwert unterschreiten (mit Freigabe): </strong></td>
-			<td><strong id="setTempMin"></strong><strong>°C</strong></td>
-		</tr>
-		<tr>
-			<td><strong class="auto-style4">Schwellwert überschreiten (mit Freigabe): </strong></td>
-			<td><strong id="setTempMax"></strong><strong>°C</strong></td>
-		</tr>
-		<tr>
-			<td><strong class="auto-style5">Schwellwert unterschreiten (ohne Freigabe): </strong></td>
-			<td><strong id="setTempMinForce"></strong><strong>°C</strong></td>
-		</tr>
-		<tr>
-			<td><strong class="auto-style5">Schwellwert überschreiten (ohne Freigabe): </strong></td>
-			<td><strong id="setTempMaxForce"></strong><strong>°C</strong></td>
-		</tr>
-		<tr>
-			<td><strong>Temperatur: </strong></td>
-			<td><strong id="temp"></strong><strong>°C</strong></td>
-		</tr>
-		<tr>
-			<td><strong>Status: </strong></td>
-			<td><strong id="status"></strong></td>
-		</tr>
-		<tr>
-			<td><strong>Solarfreigabe: </strong></td>
-			<td><strong id="allow"></strong></td>
-		</tr>
-		<tr>
-			<td><strong>Treshold: </strong></td>
-			<td><strong id="treshold"></strong><strong>K</strong></td>
-		</tr>
-		<tr>
-			<td><strong>Calibrate: </strong></td>
-			<td><strong id="calibrate"></strong><strong>K</strong></td>
-		</tr>
-		<tr>
-			<td><strong class="auto-style4">Schwellwert unterschreiten (mit Freigabe): </strong></td>
-			<td><input type="text" id="outSetTempMin" onchange="updateDynamicVariable1()" /></strong></td>
-		</tr>
-		<tr>
-			<td><strong class="auto-style4">Schwellwert überschreiten (mit Freigabe): </strong></td>
-			<td><input type="text" id="outSetTempMax" onchange="updateDynamicVariable2()" /></strong></td>
-		</tr>
-		<tr>
-			<td><strong class="auto-style5">Schwellwert unterschreiten (ohne Freigabe): </strong></td>
-			<td><input type="text" id="outSetTempMinForce" onchange="updateDynamicVariable5()" /></strong></td>
-		</tr>
-		<tr>
-			<td><strong class="auto-style5">Schwellwert überschreiten (ohne Freigabe): </strong></td>
-			<td><input type="text" id="outSetTempMaxForce" onchange="updateDynamicVariable6()" /></strong></td>
-		</tr>
-		<tr>
-			<td><strong>Treshold (°C): </strong></td>
-			<td><input type="text" id="outTreshold" onchange="updateDynamicVariable3()" /></strong></td>
-		</tr>
-		<tr>
-			<td><strong>calibrate (°C): </strong></td>
-			<td><input type="text" id="outCalibrate" onchange="updateDynamicVariable4()" /></strong></td>
-		</tr>
-		<tr></tr>
-		<tr>
-			<td>
-				<form action="submit" method="post">
-					<button class="button" id="submitBtn" type="submit" name="action" value="">übernehmen</button>
-				</form>
-			</td>
-			<td>
-				<form action="submit" method="post">
-					<button class="button" id="mode" type="submit" name="action" value="">dynamic</button>
-				</form>
-			</td>
-		</tr>
+<div class="wrapper">
+	<div class="card">
 
-	</table>
-</body>
-</html>
+		<h1 id="headline">Embedded Template</h1>
+		<div class="version" id="version">unknown</div>
+
+		<div class="grid">
+
+			<div class="label ok">Schwellwert unterschreiten (mit Freigabe):</div>
+			<div class="value"><span id="setTempMin"></span>°C</div>
+
+			<div class="label ok">Schwellwert überschreiten (mit Freigabe):</div>
+			<div class="value"><span id="setTempMax"></span>°C</div>
+
+			<div class="label warn">Schwellwert unterschreiten (ohne Freigabe):</div>
+			<div class="value"><span id="setTempMinForce"></span>°C</div>
+
+			<div class="label warn">Schwellwert überschreiten (ohne Freigabe):</div>
+			<div class="value"><span id="setTempMaxForce"></span>°C</div>
+
+			<div class="label">Temperatur:</div>
+			<div class="value"><span id="temp"></span>°C</div>
+
+			<div class="label">Status:</div>
+			<div class="value"><span id="status"></span></div>
+
+			<div class="label">Solarfreigabe:</div>
+			<div class="value"><span id="allow"></span></div>
+
+			<div class="label">Treshold:</div>
+			<div class="value"><span id="treshold"></span>K</div>
+
+			<div class="label">Calibrate:</div>
+			<div class="value"><span id="calibrate"></span>K</div>
+
+			<div class="label ok">Schwellwert unterschreiten (mit Freigabe):</div>
+			<div><input type="text" id="outSetTempMin" onchange="updateDynamicVariable1()"></div>
+
+			<div class="label ok">Schwellwert überschreiten (mit Freigabe):</div>
+			<div><input type="text" id="outSetTempMax" onchange="updateDynamicVariable2()"></div>
+
+			<div class="label warn">Schwellwert unterschreiten (ohne Freigabe):</div>
+			<div><input type="text" id="outSetTempMinForce" onchange="updateDynamicVariable5()"></div>
+
+			<div class="label warn">Schwellwert überschreiten (ohne Freigabe):</div>
+			<div><input type="text" id="outSetTempMaxForce" onchange="updateDynamicVariable6()"></div>
+
+			<div class="label">Treshold (°C):</div>
+			<div><input type="text" id="outTreshold" onchange="updateDynamicVariable3()"></div>
+
+			<div class="label">calibrate (°C):</div>
+			<div><input type="text" id="outCalibrate" onchange="updateDynamicVariable4()"></div>
+
+		</div>
+
+		<div class="actions">
+			<form action="submit" method="post">
+				<button id="submitBtn" type="submit" name="action" value="">übernehmen</button>
+			</form>
+			<form action="submit" method="post">
+				<button id="mode" type="submit" name="action" value="">dynamic</button>
+			</form>
+		</div>
+
+	</div>
+</div>
 
 <script>
 	var values =
