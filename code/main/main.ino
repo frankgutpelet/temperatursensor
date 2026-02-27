@@ -8,6 +8,7 @@
 #include <DallasTemperature.h>
 #include "Save.hpp"
 #include "regulator.hpp"
+#include "average.hpp"
 
 #define REL_STATUS_FAILSAVE true
 
@@ -46,6 +47,7 @@ e_mode switchMode = OFF;
 
 OneWire oneWire(4); //D2 @ nodeMCU
 DallasTemperature sensors(&oneWire);
+average avg(10, 0.2);
 
 void handleSubmit() 
 {
@@ -228,8 +230,8 @@ void timerOneFunc()
   temp = sensors.getTempCByIndex(0);
   if (temp != DEVICE_DISCONNECTED_C)
   {
-    temp = temp + storage.Get_calibrate();
-    lastTemp = temp;
+    avg.setValue(temp + storage.Get_calibrate());
+    lastTemp = temp = avg.getValue();
     dallasErrorCnt = 0;
   }
   else
@@ -239,7 +241,7 @@ void timerOneFunc()
   }
   if (10 <= dallasErrorCnt)
   {
-    lastTemp = temp;
+    lastTemp = -127;
     relStatus = REL_STATUS_FAILSAVE;
   }
 
