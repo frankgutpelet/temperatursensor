@@ -27,7 +27,7 @@ double lastTemp = 0.0;
 int dallasErrorCnt = 0;
 int relaisPin = 16; //D0 @ nodeMCU
 regulator tempRegulator(0,0,0,0,0);
-String fwVersion = "Version 2.1";
+String fwVersion = "Version 2.2";
 ESP8266WebServer server(80);
 base indexPage(&server);
 Logger* logger = Logger::instance();
@@ -224,6 +224,7 @@ void timerOneFunc()
   String tempString = "";
   
   sensors.requestTemperatures();
+  delay(750); //750ms fuer konvertierung
   temp = sensors.getTempCByIndex(0);
   if (temp != DEVICE_DISCONNECTED_C)
   {
