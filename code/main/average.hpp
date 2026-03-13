@@ -1,20 +1,23 @@
 #pragma once
-#include <Arduino.h>
+
+#include <stdint.h>
 
 class average
 {
 public:
-    average(uint8_t avgNo, float tolerance);
+    average();
 
     void setValue(float value);
-    float getValue() const;
+    float getValue();
 
 private:
-    float* buffer;
-    uint8_t size;
+    static constexpr uint8_t MAX_SIZE = 20;
+
+    float values[MAX_SIZE];  
+
     uint8_t index;
     uint8_t count;
 
-    float tolerance;
     float sum;
+    float tolerance;
 };

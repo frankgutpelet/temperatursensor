@@ -14,13 +14,13 @@
 
 const char* ssid = "WMOSKITO";
 const char* password = ".ubX54bVSt#vxW11m.";
-const char* myhostname = "WasserbettSabrina";
+const char* myhostname = "Kuehlschrank";
 
 const char* title = "Temperatursteuerung";
 const unsigned int timerOnePeriod = 1000;
-const unsigned int relOffBreakSeconds = 2; //2 minutes
+const unsigned int relOffBreakSeconds = 180; //2 minutes
 unsigned int relOffBreakCounter = 0;
-double tempMax;
+
 double tempMin;
 double tempMaxForce;
 double tempMinForce;
@@ -28,7 +28,7 @@ double lastTemp = 0.0;
 int dallasErrorCnt = 0;
 int relaisPin = 16; //D0 @ nodeMCU
 regulator tempRegulator(0,0,0,0,0);
-String fwVersion = "Version 2.3";
+String fwVersion = "Version 2.4";
 ESP8266WebServer server(80);
 base indexPage(&server);
 Logger* logger = Logger::instance();
@@ -43,11 +43,11 @@ enum e_mode {
   AUTO
 };
 
-e_mode switchMode = OFF;
+e_mode switchMode = AUTO;
 
 OneWire oneWire(4); //D2 @ nodeMCU
 DallasTemperature sensors(&oneWire);
-average avg(10, 0.2);
+average avg;
 
 void handleSubmit() 
 {
@@ -231,8 +231,15 @@ void timerOneFunc()
   
   if (temp != DEVICE_DISCONNECTED_C)
   {
-    avg.setValue(temp + storage.Get_calibrate());
-    lastTemp = temp = avg.getValue();
+    int cal = storage.Get_calibrate();
+    avg.setValue(temp);
+    Serial.print("Temp sensor: ");
+    Serial.print(temp);
+    Serial.println("°C");
+    Serial.print("calibrate value: ");
+    Serial.print(cal);
+    Serial.println("K");
+    lastTemp = temp = avg.getValue() + cal;
     dallasErrorCnt = 0;
   }
   else
@@ -263,14 +270,16 @@ void timerOneFunc()
   indexPage.Set_setTempMinForce(String(tempMinForce));
   indexPage.Set_calibrate(String(storage.Get_calibrate()));
   indexPage.Set_treshold(String(storage.Get_treshold()));
-
+  indexPage.Set_mode("AUTO");
   if (OFF == switchMode)
   {
     relStatus = false;
+    indexPage.Set_mode("OFF");
   }
   else if (ON == switchMode)
   {
     relStatus = true;
+    indexPage.Set_mode("ON");
   }
   else if (temp != DEVICE_DISCONNECTED_C)
   {

@@ -1,11 +1,10 @@
 #include "average.hpp"
+#include <cmath>
 
-average::average(uint8_t avgNo, float tol)
+
+average::average()
 {
-    size = avgNo;
-    tolerance = tol;
 
-    buffer = new float[size];
     index = 0;
     count = 0;
     sum = 0.0f;
@@ -13,38 +12,22 @@ average::average(uint8_t avgNo, float tol)
 
 void average::setValue(float value)
 {
-    // Wenn bereits Werte vorhanden sind → Toleranz prüfen
-    if (count > 0)
+    this->index++;
+    if (this->MAX_SIZE == index)
     {
-        float currentAvg = sum / count;
-        if (abs(value - currentAvg) > tolerance)
-        {
-            return; // Wert ignorieren
-        }
+      this->index = 0;
     }
 
-    // Wenn Puffer voll → alten Wert abziehen
-    if (count == size)
-    {
-        sum -= buffer[index];
-    }
-    else
-    {
-        count++;
-    }
-
-    buffer[index] = value;
-    sum += value;
-
-    index++;
-    if (index >= size)
-        index = 0;
+    this->values[this->index] = value;
 }
 
-float average::getValue() const
+float average::getValue()
 {
-    if (count == 0)
-        return 0.0f;
+    float sum = 0;
+    for (int i=0;i<this->MAX_SIZE;i++)
+    {
+      sum += this->values[i];
+    }
 
-    return sum / count;
+    return sum / this->MAX_SIZE;
 }
